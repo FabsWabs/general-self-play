@@ -1,9 +1,9 @@
 import Arena
 from MCTS import MCTS
-from soulaween.SoulaweenGame import SoulaweenGame
-from soulaween.SoulaweenPlayers import *
+from boop.BoopGame import BoopGame
+from boop.BoopPlayers import *
 
-from soulaween.pytorch.NNet import NNetWrapper as NNet
+# from boop.pytorch.NNet import NNetWrapper as NNet
 
 
 import numpy as np
@@ -17,23 +17,22 @@ any agent.
 mini_othello = False  # Play in 6x6 instead of the normal 8x8.
 human_vs_cpu = True
 
-g = SoulaweenGame(4)
+g = BoopGame(6)
 
 # all players
 rp = RandomPlayer(g).play
-la = OneStepLookaheadPlayer(g).play
-hp = HumanSoulaweenPlayer(g).play
+hp = HumanBoopPlayer(g).play
 
 
 # nnet players
-n1 = NNet(g)
-n1.load_checkpoint(
-    # "./pretrained_models/othello/pytorch/", "8x8_100checkpoints_best.pth.tar"
-    "./temp/", "best.pth.tar"
-)
-args1 = dotdict({"numMCTSSims": 50, "cpuct": 1.0})
-mcts1 = MCTS(g, n1, args1)
-n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
+# n1 = NNet(g)
+# n1.load_checkpoint(
+#     # "./pretrained_models/othello/pytorch/", "8x8_100checkpoints_best.pth.tar"
+#     "./temp/", "best.pth.tar"
+# )
+# args1 = dotdict({"numMCTSSims": 50, "cpuct": 1.0})
+# mcts1 = MCTS(g, n1, args1)
+# n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
 
 # if human_vs_cpu:
 #     player2 = hp
@@ -48,15 +47,15 @@ n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
 
 # player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-# arena = Arena.Arena(hp, n1p, g, display=SoulaweenGame.display)
-# print(arena.playGames(2, verbose=True))
+arena = Arena.Arena(hp, rp, g, display=BoopGame.display)
+print(arena.playGames(2, verbose=True))
 
 
 # arena = Arena.Arena(rp, la, g, display=SoulaweenGame.display)
 # print(arena.playGames(100))
 
-arena = Arena.Arena(n1p, rp, g, display=SoulaweenGame.display)
-print(arena.playGames(100))
+# arena = Arena.Arena(n1p, rp, g, display=BoopGame.display)
+# print(arena.playGames(100))
 
 
 # arena = Arena.Arena(la, n1p, g, display=SoulaweenGame.display)

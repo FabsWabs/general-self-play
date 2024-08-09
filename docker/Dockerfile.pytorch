@@ -2,7 +2,9 @@
 # Note that I removed the third party package installation to keep this image smaller.
 # It is different to the docker image that is pulled from pytorch/pytorch, I cannot use the base image from official dockerhub because it somehow is missing cuda.h in /usr/local/nvidia, which makes it impossible to install some gpu libraries.
 
-FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+FROM nvidia/cuda:12.5.1-cudnn-devel-ubuntu20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
          build-essential \
@@ -24,11 +26,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-py37_4.10.3-Linux-x86_64.sh  && \
 chmod +x ~/miniconda.sh && \
 ~/miniconda.sh -b -p /opt/conda && \
-rm ~/miniconda.sh && \
-/opt/conda/bin/conda install numpy pyyaml scipy cython jupyter ipython mkl mkl-include && \
-/opt/conda/bin/conda install -c soumith magma-cuda90 && \
-/opt/conda/bin/conda install pytorch=0.4.1 -c pytorch && \
-/opt/conda/bin/conda clean -ya
+rm ~/miniconda.sh
+
+RUN /opt/conda/bin/conda update -n base conda && \
+/opt/conda/bin/conda install -n base conda-libmamba-solver && \
+/opt/conda/bin/conda config --set solver libmamba
+
+RUN /opt/conda/bin/conda install numpy pyyaml scipy
+RUN /opt/conda/bin/conda install anaconda::cython jupyter ipython mkl mkl-include
+RUN /opt/conda/bin/conda install -c soumith magma-cuda90
+RUN /opt/conda/bin/conda install pytorch=0.4.1 -c pytorch
+RUN /opt/conda/bin/conda install setuptools wheel
+RUN /opt/conda/bin/conda clean -ya
 
 ENV PATH /opt/conda/bin:$PATH
 

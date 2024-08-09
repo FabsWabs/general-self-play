@@ -1,10 +1,14 @@
 import logging
+from torchinfo import summary
 
 import coloredlogs
 
 from Coach import Coach
+
 from soulaween.SoulaweenGame import SoulaweenGame as Game
 from soulaween.pytorch.NNet import NNetWrapper as nn
+# from othello.OthelloGame import OthelloGame as Game
+# from othello.pytorch.NNet import NNetWrapper as nn
 from utils import *
 
 log = logging.getLogger(__name__)
@@ -23,7 +27,7 @@ args = dotdict(
         "cpuct": 1,
         "checkpoint": "./temp/",
         "load_model": False,
-        "load_folder_file": ("/dev/models/8x100x50", "best.pth.tar"),
+        "load_folder_file": ("./temp/", "best.pth.tar"),
         "numItersForTrainExamplesHistory": 20,
     }
 )
@@ -35,6 +39,8 @@ def main():
 
     log.info("Loading %s...", nn.__name__)
     nnet = nn(g)
+
+    print(summary(nnet.nnet, (1, 1, g.getBoardSize()[0], g.getBoardSize()[1])))
 
     if args.load_model:
         log.info(

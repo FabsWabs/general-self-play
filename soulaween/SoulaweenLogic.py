@@ -3,8 +3,7 @@ class Board:
 
     def __init__(self, n):
         self.n = n
-        # self.pieces = [[0 for _ in range(n)] for _ in range(n)]
-        self.pieces = [[1, 1, -1, 0], [1, -1, 1, 0], [1, 1, -1, 0], [0, 0, 0, 0]]
+        self.pieces = [[0 for _ in range(n)] for _ in range(n)]
 
     def __getitem__(self, index):
         return self.pieces[index]

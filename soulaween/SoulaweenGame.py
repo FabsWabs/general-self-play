@@ -60,7 +60,7 @@ class SoulaweenGame:
 
     def getCanonicalForm(self, board, player):
         # return state if player==1, else return -state if player==-1
-        return player * board
+        return board * player
 
     def getSymmetries(self, board, pi):
         # mirror, rotational
@@ -70,12 +70,13 @@ class SoulaweenGame:
 
         for i in range(1, 5):
             for j in [True, False]:
-                newB = np.rot90(board, i)
-                newPi = np.rot90(pi_board, i, axes=(1, 2))
-                if j:
-                    newB = np.fliplr(newB)
-                    newPi = np.fliplr(newPi)
-                l += [(newB, list(newPi.ravel()))]
+                for k in [1, -1]:
+                    newB = np.rot90(board, i) * k
+                    newPi = np.rot90(pi_board, i, axes=(1, 2))[::k, :, :]
+                    if j:
+                        newB = np.fliplr(newB)
+                        newPi = np.fliplr(newPi)
+                    l += [(newB, list(newPi.ravel()))]
         return l
 
     def stringRepresentation(self, board):
