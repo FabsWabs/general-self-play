@@ -49,10 +49,10 @@ class BoopGame():
         """
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if action == self.n*self.n:
+        if action == self.n**2 * 2:
             assert any(b.pieces[:-1].flatten() == player)
             first_kitten = np.where(b.pieces[:-1] == player)
-            b._remove_piece(first_kitten[0][0], first_kitten[1][0])
+            b._remove_piece((first_kitten[0][0], first_kitten[1][0]))
         else:
             piece = 1 if action // (self.n**2) == 0 else 2
             action = action % (self.n**2)
@@ -114,9 +114,10 @@ class BoopGame():
                             the colors and return the board.
         """
         # change values of last row according to indices (0, 1, 2, 3) -> (2, 3, 0, 1)
-        board[-1] = np.roll(board[-1], 2*(player - 1))
-        board[:-1] = player*board[:-1]
-        return board
+        b = np.copy(board)
+        b[-1,:4] = np.roll(board[-1, :4], (player - 1))
+        b[:-1] = player*board[:-1]
+        return b
 
     def getSymmetries(self, board, pi):
         """
@@ -129,7 +130,7 @@ class BoopGame():
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
-        assert(len(pi) == self.n**2+1)  # 1 for pass
+        assert(len(pi) == self.n**2*2+1)  # 1 for pass
         pi_board = np.reshape(pi[:-1], (2, self.n, self.n))
         l = []
 
@@ -140,7 +141,7 @@ class BoopGame():
                 if j:
                     newB = np.fliplr(newB)
                     newPi = np.fliplr(newPi)
-                l += [(np.concatenate([newB, board[-1]]), list(newPi.ravel()) + [pi[-1]])]
+                l += [(np.concatenate([newB, board[-1].reshape(1, self.n)]), list(newPi.ravel()) + [pi[-1]])]
         return l
 
     def stringRepresentation(self, board):
@@ -152,7 +153,7 @@ class BoopGame():
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return board.tostring()
+        return board[:-1].tostring()
     
     @staticmethod
     def display(board):

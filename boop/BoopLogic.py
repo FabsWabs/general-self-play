@@ -6,14 +6,22 @@ class Board:
 
     def __init__(self, n=6):
         self.n = n
-        # self.pieces = [[0 for _ in range(n)] for _ in range(n)]
-        self.pieces = [[0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0],
-                       [0, 0, 1, 1, 0, 0],
-                       [0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0],
-                       [6, 0, 8, 0, 0, 0]]
+        self.pieces = [[0 for _ in range(n)] for _ in range(n)]
+        self.pieces.append([8, 0, 8, 0, 0, 0])
+        # self.pieces = [[0, 0, 0, 2, 0, 0],
+        #                [0, 2, 0, 0, 0, 0],
+        #                [0, 0, 2, 0, 0, 0],
+        #                [0, 2, 0, 0, 0, 0],
+        #                [0, 0, 2, 0, 2, 0],
+        #                [0, 0, 0, 0, 0, 2],
+        #                [0, 1, 8, 0, 0, 0]]
+        # self.pieces = [[0, 1, 0, 1, 0, 0],
+        #                [0, 0, 0, 0, 0, 0],
+        #                [0, 0, 1, 0, 0, 0],
+        #                [0, 1, 0, 1, 0, 0],
+        #                [0, 0, 0, 0, 0, 0],
+        #                [0, 1, 0, 1, 0, 0],
+        #                [1, 0, 8, 0, 0, 0]]
 
     def __getitem__(self, index):
         return self.pieces[index]
@@ -53,14 +61,15 @@ class Board:
                     self.pieces[ni][nj] = 0
             else:
                 # Otherwise, remove the piece and update the counts
-                self._remove_piece((ni, nj))
+                self._remove_piece((ni, nj), promote=False)
 
     
-    def _remove_piece(self, cell):
+    def _remove_piece(self, cell, promote=True):
         i, j = cell
         piece = self.pieces[i][j]
         player_idx = 0 if piece > 0 else 1
-        self.pieces[-1][player_idx*2 + 1] += 1
+        new_piece = 1 if promote else 0
+        self.pieces[-1][player_idx*2 + new_piece] += 1
         self.pieces[i][j] = 0
 
     def _check_three(self):
