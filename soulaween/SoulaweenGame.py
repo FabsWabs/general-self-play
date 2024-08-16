@@ -9,7 +9,6 @@ import numpy as np
 class SoulaweenGame:
     def __init__(self, n=4) -> None:
         self.n = n
-        self.last_player = -1
 
     def getInitBoard(self):
         # return initial board (numpy board)
@@ -32,7 +31,6 @@ class SoulaweenGame:
         action = action % (self.n**2)
         move = (int(action / self.n), action % self.n)
         b.execute_move(move, color)
-        self.last_player = player
         return (b.pieces, -player)
 
     def getValidMoves(self, board, player):
@@ -53,7 +51,13 @@ class SoulaweenGame:
         b.pieces = np.copy(board)
 
         if b.is_win():
-            return 1 if player == self.last_player else -1
+            winner = np.count_nonzero(b.pieces) % 2 # 0 if player 2 won, 1 if player 1 won
+            if winner == 0:
+                winner = -1
+            if winner == player:
+                return 1
+            else:
+                return -1
         if not b.has_legal_moves():
             return 1e-4
         return 0
@@ -68,14 +72,14 @@ class SoulaweenGame:
         pi_board = np.reshape(pi, (2, self.n, self.n))
         l = []
 
-        for i in range(1, 5):
+        for i in range(0, 4):
             for j in [True, False]:
                 for k in [1, -1]:
                     newB = np.rot90(board, i) * k
                     newPi = np.rot90(pi_board, i, axes=(1, 2))[::k, :, :]
                     if j:
                         newB = np.fliplr(newB)
-                        newPi = np.fliplr(newPi)
+                        newPi = np.flip(newPi, axis=2)
                     l += [(newB, list(newPi.ravel()))]
         return l
 
