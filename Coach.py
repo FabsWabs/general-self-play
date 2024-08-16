@@ -52,15 +52,20 @@ class Coach():
 
         while True:
             episodeStep += 1
-            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
+            canonicalBoard, idx = self.game.getCanonicalForm(board, self.curPlayer, True)
             temp = int(episodeStep < self.args.tempThreshold)
 
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
-            sym = self.game.getSymmetries(canonicalBoard, pi)
-            for b, p in sym:
-                trainExamples.append([b, self.curPlayer, p, None])
+            trainExamples.append([canonicalBoard, self.curPlayer, pi, None])
+            # sym = self.game.getSymmetries(canonicalBoard, pi)
+            # for b, p in sym:
+            #     trainExamples.append([b, self.curPlayer, p, None])
 
-            action = np.random.choice(len(pi), p=pi)
+            reversed_pi = self.game.reverseTransformation(pi, idx)
+            action = np.random.choice(len(reversed_pi), p=reversed_pi)
+            # valids = self.game.getValidMoves(board, 1)
+            # valids = np.argwhere(valids == 1).flatten()
+            # action = np.random.choice(valids, p=pi)
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
 
             r = self.game.getGameEnded(board, self.curPlayer)
@@ -103,7 +108,7 @@ class Coach():
             trainExamples = []
             for e in self.trainExamplesHistory:
                 trainExamples.extend(e)
-            shuffle(trainExamples)
+            # shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
